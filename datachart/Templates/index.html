@@ -1,0 +1,204 @@
+
+
+
+<html>
+
+<head>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript">
+  {% comment %} setInterval(function() { drawChart(); } ,1000); {% endcomment %}
+    google.charts.load('current', { 'packages': ['corechart'] });
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+      var voltageData = google.visualization.arrayToDataTable([
+        ['Voltage', 'Voltage'],
+        {% for a in datetime_query %}
+    ['{{a.id}}:{{a.Voltage}} V', {{ a.Voltage }}],
+      {% endfor %}
+        ]);
+
+        var speedData = google.visualization.arrayToDataTable([
+        ['Speed', 'Speed'],
+        {% for b in datetime_query %}
+    ['{{b.id}}:{{b.Speed}} U/M', {{ b.Speed }}],
+      {% endfor %}
+        ]);
+
+        var tempData = google.visualization.arrayToDataTable([
+        ['Temperature', 'Temp'],
+        {% for c in datetime_query %}
+    ['{{c.id}}:{{c.Temperature}}C', {{ c.Temperature }}],
+
+   // {% comment %} <Script> console.log(c.Temperature)</Script>
+    //<Script> console.log("Hello")</Script> {% endcomment %}
+      {% endfor %}
+        ]);
+
+
+
+/// this is for temp
+        var options = {
+          title: 'Chart for Machines Temperature',
+          curveType: 'function',
+          legend: { position: 'bottom' }
+        };
+    
+        var chart = new google.visualization.LineChart(document.getElementById('curve_chart_temp'));
+    
+        chart.draw(tempData, options);
+    
+        var option = {
+          title: 'Machines Temperature percentage',
+        };
+    
+        var piechart = new google.visualization.PieChart(document.getElementById('piechart_temp'));
+        piechart.draw(tempData, option);
+    
+    
+        var donutoption = {
+          title: "Graph of machine Temperature",
+          width: 500,
+          height: 400,
+          bar: {groupWidth: "50%"},
+          legend: { position: "none" },
+        };
+        var donutchart = new google.visualization.ColumnChart(document.getElementById('bar_temp'));
+        donutchart.draw(tempData, donutoption);
+        /// this is for speed
+
+        var options = {
+          title: 'Chart for Production of machines',
+          curveType: 'function',
+          legend: { position: 'bottom' }
+        };
+    
+        var chart = new google.visualization.LineChart(document.getElementById('curve_chart_speed'));
+    
+        chart.draw(speedData, options);
+    
+        var option = {
+          title: 'Production percentage of Machines',
+        };
+    
+        var piechart = new google.visualization.PieChart(document.getElementById('piechart_speed'));
+        piechart.draw(speedData, option);
+    
+    
+        var donutoption = {
+          title: "Production rate Graph of Machines",
+          width: 500,
+          height: 400,
+          bar: {groupWidth: "50%"},
+          legend: { position: "none" },
+        };
+        var donutchart = new google.visualization.ColumnChart(document.getElementById('bar_speed'));
+        donutchart.draw(speedData, donutoption);
+
+        /// this is for voltage
+
+        var options = {
+          title: 'Chart for Machines Voltage',
+          curveType: 'function',
+          legend: { position: 'bottom' }
+        };
+    
+        var chart = new google.visualization.LineChart(document.getElementById('curve_chart_volt'));
+    
+        chart.draw(voltageData, options);
+    
+        var option = {
+          title: 'Percentage of machines Voltage',
+        };
+    
+        var piechart = new google.visualization.PieChart(document.getElementById('piechart_volt'));
+        piechart.draw(voltageData, option);
+    
+    
+        var donutoption = {
+          title: "Voltage of Machine",
+          width: 500,
+          height: 400,
+          bar: {groupWidth: "50%"},
+          legend: { position: "none" },
+        };
+        var donutchart = new google.visualization.ColumnChart(document.getElementById('bar_volt'));
+        donutchart.draw(voltageData, donutoption);
+    
+  }
+
+
+
+
+
+  console.log("hello");
+  </script>
+</head>
+
+<body>
+  <br>
+  <br>
+  <div class="container">
+    <form action="/result">
+      <input type="datetime-local" name="q3">
+
+
+      <!-- {% comment %}          -->
+      <!-- <select name="q" >
+            <option >-----</option>
+            <option>08:00:00</option>
+            <option>16:00:00</option>
+            <option>00:00:00</option>
+        </select>
+        <select name="q2">
+            <option>-----</option>
+            <option>08:00:00</option>
+            <option>16:00:00</option>
+            <option>00:00:00</option>
+        {% comment %} </select> {% endcomment %} --> {% 
+      <button type="submit" class="btn btn-primary">submit</button>
+    </form>
+
+
+  </div>
+  <!-- temperature show block -->
+  <div class="row">
+      <div style="width: 100%;border-bottom:5px solid black;"><H1 style="margin-left:50px ;">Temperature</H1></div>
+    <div class="card-body col-lg-4 " id="curve_chart_temp"
+      style="width: 500px; height: 400px; "></div>
+    <div class="card-body col-lg-4 " id="piechart_temp" style="width: 500px; height: 400px"></div>
+    <div class="card-body col-lg-4" id="bar_temp" style="width: 500px; height: 400px"></div>
+  </div>
+
+  <!-- speed of production of machine -->
+  <div class="row">
+      <div style="width: 100%;border-bottom:5px solid black;"><H1 style="margin-left:50px ;">Speed</H1></div>
+    <div class="card-body col-lg-4 " id="curve_chart_speed"
+      style="width: 500px; height: 400px; "></div>
+    <div class="card-body col-lg-4 " id="piechart_speed" style="width: 500px; height: 400px"></div>
+    <div class="card-body col-lg-4" id="bar_speed" style="width: 500px; height: 400px"></div>
+  </div>
+
+  <!--  voltage of machines -->
+  <div class="row">
+      <div style="width: 100%;border-bottom:5px solid black;"><H1 style="margin-left:50px ;">Voltage</H1></div>
+    <div class="card-body col-lg-4 " id="curve_chart_volt"
+      style="width: 500px; height: 400px; "></div>
+    <div class="card-body col-lg-4 " id="piechart_volt" style="width: 500px; height: 400px"></div>
+    <div class="card-body col-lg-4" id="bar_volt" style="width: 500px; height: 400px"></div>
+  </div>
+
+</body>
+
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE HTML>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+</head>
+
+<body>
+    <br>
+    <br>
+    <div class="container">
+        <form action="/result" method="post">
+            {% csrf_token %}
+            <input type="date" name="from_date">
+            <input type="date" name="to_date">
+            <br>
+            <br>
+            <div class="row">
+                <div class="col-3">
+                    <button class="btn btn-primary" type="submit">submit</button>
+                </div>
+
+
+        </form>
+        {% comment %} <br>
+        <br> {% endcomment %}
+        <div class="container col-3">
+            <form action="/show_data">
+                {% comment %} <input type="datetime-local" name="q3"> {% endcomment %}
+
+                <button type="Show" class="btn btn-warning">Show Data</button>
+        </div>
+        <br>
+        <div class="box-body" style="width: 60%;">
+            <table class="columns">
+                <tr>
+                    <td>
+                        <div class="col-md-12" id="piechart_div"></div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    </form>
+
+    <br>
+    <div id="chartContainer" style="height: 370px; width:100%;"></div>
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+
+</body>
+
+<script>
+    setInterval(function () {
+        google.charts.load('current', {
+            packages: ['corechart']
+        }).then(function s() {
+            $.ajax({
+                url: "/get_live_data",
+                dataType: "JSON",
+                success: function (result) {
+                    drawChart(result.data);
+                },
+                error: function () {
+                    var result = [
+                        { name: '1', defects: '1' },
+                    ];
+
+                    drawChart(result);
+                }
+            });
+
+            function drawChart(result) {
+                var data = new google.visualization.DataTable();
+                data.addColumn('string', 'Name');
+                data.addColumn('number', 'value');
+
+                var dataArray = [];
+
+                $.each(result, function (i, obj) {
+                    console.log(obj)
+                    dataArray.push([String(obj.name), parseFloat(obj.value)]);
+                });
+                data.addRows(dataArray);
+
+                var piechart_options = {
+                    title: 'Machine Data',
+                    width: 700,
+                    height: 400,
+                    is3D: true,
+                };
+                var piechart = new google.visualization.PieChart(document.getElementById('piechart_div'));
+                piechart.draw(data, piechart_options);
+            }
+        })
+    }, 1000);
+
+</script>
+<script>
+    window.onload = function () {
+        console.log("startfunction")
+        var dps = []; // dataPoints
+        var chart = new CanvasJS.Chart("chartContainer", {
+            title: {
+                text: "Machine Speed Data"
+            },
+            axisY: {
+                includeZero: false
+            },
+
+            data: [{
+                type: "line",
+                dataPoints: dps
+            }]
+        });
+
+        var xVal = 0;
+        var yVal = 100;
+        var updateInterval = 1000;
+        var dataLength = 20; // number of dataPoints visible at any point
+
+        var updateChart = function (count) {
+
+            count = count || 1;
+
+            for (var j = 0; j < count; j++) {
+                dps.push({
+                    x: xVal,
+                    y: get_data()
+
+                });
+                xVal++;
+                console.log(get_data())
+            }
+            if (dps.length > dataLength) {
+                dps.shift();
+            }
+            
+            chart.render();
+
+        };
+        var myvar;
+        updateChart(dataLength);
+        myvar = setInterval(function () { updateChart() }, 1000);
+
+        var res = "";
+        function get_data() {
+            fetch("http://127.0.0.1:8000/get_live_data").then(response => response.json())
+                .then(response => {
+                    res = parseFloat(response.data[0].value)
+                    console.log("speed:",response.data[0]);
+                }
+                )
+            return res
+        }
+    }
+    console.log("start");
+    // var myvar;
+    // updateChart(dataLength);
+    // myvar = setInterval(function () { updateChart() }, 1000);
+
+    
+ </script> 
+</html>
