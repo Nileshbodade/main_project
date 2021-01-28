@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse
 # from django.utils import 
 from django.http import JsonResponse
-from .models import Parameter
+from .models import Par
 from django.db.models import Sum
 import datetime
 import os
